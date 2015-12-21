@@ -1,25 +1,25 @@
 # Language setting
 language: node_js
 
-build_image: drydock/u14nodpls:tip
-
 # Version number
 node_js:
-  - 0.12
+  - 0.10.25
+  - 4.0
+  - 5.0
+
+# Mongo binds to 127.0.0.1 by default
+services:
+  - mongodb
 
 # The path for Xunit to output test reports
 env:
   - XUNIT_FILE=shippable/testresults/result.xml
 
-install:
-  - source ~/.nvm/nvm.sh && nvm install 4.0.0
-  - node --version
-  - npm install
-
 # Create directories for test and coverage reports
 before_script:
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
+
 
 # Running the tests with grunt
 script:
@@ -27,5 +27,9 @@ script:
 
 # Tell istanbul to generate a coverage report
 after_script:
+  - mongo test --eval "db.dropDatabase()"
   - ./node_modules/.bin/istanbul cover grunt -- -u tdd
   - ./node_modules/.bin/istanbul report cobertura --dir  shippable/codecoverage/
+archive: true
+
+#cache: true
